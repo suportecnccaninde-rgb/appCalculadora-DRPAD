@@ -2,7 +2,7 @@
   "name": "Calculadora DRPAD",
   "short_name": "DRPAD",
   "description": "Calculadora de estratificação de risco na Doença Renal Policística Autossômica Dominante",
-  "start_url": "./",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f4f7f6",
   "theme_color": "#1e3c72",
@@ -10,8 +10,15 @@
   "icons": [
     {
       "src": "icone/icone.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icone/icone.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
