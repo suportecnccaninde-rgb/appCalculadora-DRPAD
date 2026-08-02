@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora DRPAD v2.0 - Dr. Elison Moreira Júnior</title>
+    <link rel="manifest" href="manifest.json">
+    
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icone.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icons/icone.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">    
+<meta name="apple-mobile-web-app-title" content="Calculadora DRPAD">
+<meta name="theme-color" content="#1e3c72">
+    <style>
+        :root {
+            --primary: #1e3c72;
+            --primary-light: #2a5298;
+            --accent: #008080;
+            --bg-body: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --risk-low: #166534; --risk-low-bg: #dcfce7;
+            --risk-mod: #854d0e; --risk-mod-bg: #fef9c3;
+            --risk-high: #991b1b; --risk-high-bg: #fee2e2;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            margin: 0; padding: 20px;
+            display: flex; justify-content: center;
+        }
+
+        .calc-container {
+            width: 100%; max-width: 1000px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white; padding: 20px 24px;
+        }
+
+        .header h1 { font-size: 1.4rem; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header .subtitle { font-size: 0.88rem; opacity: 0.9; margin: 0 0 10px 0; }
+        .header .author-badge {
+            background: rgba(255,255,255,0.18);
+            display: inline-block; padding: 4px 10px;
+            border-radius: 6px; font-size: 0.82rem; font-weight: 600;
+        }
+
+        .main-content {
+            display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; padding: 20px;
+        }
+
+        @media (max-width: 850px) { .main-content { grid-template-columns: 1fr; } }
+
+        .section-title {
+            font-size: 0.9rem; font-weight: 700; color: var(--primary);
+            text-transform: uppercase; margin-bottom: 10px; padding-bottom: 4px;
+            border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .sub-box {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+            padding: 12px; margin-bottom: 14px;
+        }
+
+        .sub-box-title {
+            font-size: 0.82rem; font-weight: 700; color: var(--primary-light);
+            text-transform: uppercase; margin-bottom: 8px;
+        }
+
+        .form-group { margin-bottom: 10px; }
+        .form-group label {
+            display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 3px;
+        }
+
+        .form-control {
+            width: 100%; padding: 6px 10px; border: 1px solid var(--border-color);
+            border-radius: 5px; font-size: 0.85rem; color: var(--text-dark);
+        }
+
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .grid-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+
+        .results-card {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+            padding: 16px; height: 100%; display: flex; flex-direction: column;
+        }
+
+        .risk-badge-box {
+            text-align: center; padding: 12px; border-radius: 8px; margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        .risk-badge-box.low { background: var(--risk-low-bg); color: var(--risk-low); border: 1px solid #bbf7d0; }
+        .risk-badge-box.mod { background: var(--risk-mod-bg); color: var(--risk-mod); border: 1px solid #fef08a; }
+        .risk-badge-box.high { background: var(--risk-high-bg); color: var(--risk-high); border: 1px solid #fecaca; }
+
+        .risk-badge-title { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; }
+        .risk-badge-sub { font-size: 0.78rem; font-weight: 600; margin-top: 2px; }
+
+        .result-item {
+            margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #cbd5e1;
+            display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;
+        }
+        .result-item:last-child { border-bottom: none; }
+        .result-label { color: #475569; }
+        .result-value { font-weight: 700; color: var(--primary); }
+
+        .tolvaptan-box {
+            border-radius: 6px; padding: 10px; margin-top: 10px; font-size: 0.78rem;
+        }
+        .tolvaptan-box.eligible { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+        .tolvaptan-box.not-eligible { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+
+        .recommendation-box {
+            margin-top: auto; background: white; border-left: 4px solid var(--accent);
+            padding: 10px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .references-footer {
+            background: #f1f5f9; padding: 12px 20px; border-top: 1px solid #e2e8f0;
+            font-size: 0.7rem; color: var(--text-muted); line-height: 1.35;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calc-container">
+    <div class="header">
+        <h1>Calculadora DRPAD v2.0 (Mayo Clinic & Tolvaptana)</h1>
+        <div class="subtitle">Estratificação Integrada: Ureia U/P + Imagem (htTKV) + Genética + Tolvaptana</div>
+        <div class="author-badge">Dr. Elison Moreira Júnior &mdash; CRM-CE 8603 | Nefrologista RQE 16960</div>
+    </div>
+
+    <div class="main-content">
+        <!-- Entrada de Dados -->
+        <div class="input-section">
+            
+            <!-- Módulo 1: Dados Clínicos -->
+            <div class="sub-box">
+                <div class="sub-box-title">1. Dados Clínicos & Segurança</div>
+                <div class="grid-2col">
+                    <div class="form-group">
+                        <label for="age">Idade (Anos)</label>
+                        <input type="number" id="age" class="form-control" value="38" oninput="calculateAll()">
+                    </div>
+                    <div class="form-group">
+                        <label for="height">Altura (cm)</label>
+                        <input type="number" id="height" class="form-control" value="175" oninput="calculateAll()">
+                    </div>
+                </div>
+                <div class="grid-2col">
+                    <div class="form-group">
+                        <label for="egfr">eGFR Basal (mL/min/1.73m²)</label>
+                        <input type="number" id="egfr" class="form-control" value="85" oninput="calculateAll()">
+                    </div>
+                    <div class="form-group">
+                        <label for="altAst">ALT/AST Hepáticas</label>
+                        <select id="altAst" class="form-control" onchange="calculateAll()">
+                            <option value="normal">Normais (&lt; 2x LSN)</option>
+                            <option value="elevated">Elevadas (&ge; 2x LSN)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo 2: Reserva Ureia -->
+            <div class="sub-box">
+                <div class="sub-box-title">2. Reserva Funcional de Ureia (1ª urina matinal pós 12h jejum hídrico)</div>
+                <div class="grid-2col">
+                    <div class="form-group">
+                        <label for="uUr">Ureia Urinária (mg/dL)</label>
+                        <input type="number" id="uUr" class="form-control" value="1200" oninput="calculateAll()">
+                    </div>
+                    <div class="form-group">
+                        <label for="uPl">Ureia Plasmática (mg/dL)</label>
+                        <input type="number" id="uPl" class="form-control" value="35" oninput="calculateAll()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo 3: Mayo Clinic -->
+            <div class="sub-box">
+                <div class="sub-box-title">3. Mayo Clinic (Medidas de Imagem em cm)</div>
+                <div class="grid-3col">
+                    <div class="form-group">
+                        <label>Rim Dir (L x W x D)</label>
+                        <input type="number" id="rkL" class="form-control" placeholder="L" value="16.5" oninput="calculateAll()">
+                        <input type="number" id="rkW" class="form-control" placeholder="W" value="7.5" style="margin-top:3px;" oninput="calculateAll()">
+                        <input type="number" id="rkD" class="form-control" placeholder="D" value="7.0" style="margin-top:3px;" oninput="calculateAll()">
+                    </div>
+                    <div class="form-group">
+                        <label>Rim Esq (L x W x D)</label>
+                        <input type="number" id="lkL" class="form-control" placeholder="L" value="17.0" oninput="calculateAll()">
+                        <input type="number" id="lkW" class="form-control" placeholder="W" value="8.0" style="margin-top:3px;" oninput="calculateAll()">
+                        <input type="number" id="lkD" class="form-control" placeholder="D" value="7.2" style="margin-top:3px;" oninput="calculateAll()">
+                    </div>
+                    <div class="form-group">
+                        <label>Seleção Direta Mayo</label>
+                        <select id="directMayo" class="form-control" onchange="calculateAll()">
+                            <option value="calc">Usar Medidas do Elipsoide</option>
+                            <option value="1A">Classe 1A</option>
+                            <option value="1B">Classe 1B</option>
+                            <option value="1C">Classe 1C</option>
+                            <option value="1D">Classe 1D</option>
+                            <option value="1E">Classe 1E</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo 4: Genética -->
+            <div class="sub-box">
+                <div class="sub-box-title">4. Perfil Genético</div>
+                <select id="genetics" class="form-control" onchange="calculateAll()">
+                    <option value="unknown">Não disponível / Desconhecido</option>
+                    <option value="PKD1_trunc">PKD1 Truncante (Alta Gravidade)</option>
+                    <option value="PKD1_nontrunc">PKD1 Não-Truncante (Moderada)</option>
+                    <option value="PKD2">PKD2 (Menor Gravidade)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Coluna de Resultados -->
+        <div class="output-section">
+            <div class="results-card">
+                <div class="section-title">Resultados Integrados</div>
+
+                <div id="riskBadge" class="risk-badge-box mod">
+                    <div id="riskTitle" class="risk-badge-title">Risco Intermediário</div>
+                    <div id="riskSub" class="risk-badge-sub">eGFR estimado: 1.5 a 3.0 mL/min/ano</div>
+                </div>
+
+                <div class="result-item"><span class="result-label">Razão Ureia U/P:</span><span id="resUp" class="result-value">34.3</span></div>
+                <div class="result-item"><span class="result-label">Status Medular Ureia:</span><span id="resStatusUreia" class="result-value">Defeito Severo (&lt; 40)</span></div>
+                <div class="result-item"><span class="result-label">TKV Total Estimado:</span><span id="resTKV" class="result-value">980 mL</span></div>
+                <div class="result-item"><span class="result-label">htTKV (Ajustado Altura):</span><span id="resHtTKV" class="result-value">560 mL/m</span></div>
+                <div class="result-item"><span class="result-label">Classificação Mayo:</span><span id="resMayo" class="result-value">Classe 1D</span></div>
+                <div class="result-item"><span class="result-label">Score Multidimensional:</span><span id="resScore" class="result-value">7 / 10</span></div>
+
+                <div id="tolvaptanPanel" class="tolvaptan-box eligible">
+                    <div style="font-weight:700; text-transform:uppercase; margin-bottom:2px;">Elegibilidade Tolvaptana</div>
+                    <div id="tolvaptanText"></div>
+                </div>
+
+                <div class="recommendation-box" style="margin-top:10px;">
+                    <div style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">Conduta Sugerida</div>
+                    <p id="recText" style="font-size:0.78rem; margin:0; line-height:1.35;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="references-footer">
+        <strong>Referências:</strong> Armenta A, Madero M, Rodriguez-Iturbe B (CJASN 2022) | DIPAK Consortium (Heida JE et al., CJASN 2021) | Irazabal MV et al. (JASN 2015).
+    </div>
+</div>
+
+<script>
+    function calculateAll() {
+        const age = parseFloat(document.getElementById('age').value) || 30;
+        const height = parseFloat(document.getElementById('height').value) || 170;
+        const egfr = parseFloat(document.getElementById('egfr').value) || 90;
+        const altAst = document.getElementById('altAst').value;
+
+        const uUr = parseFloat(document.getElementById('uUr').value) || 0;
+        const uPl = parseFloat(document.getElementById('uPl').value) || 1;
+
+        const rkL = parseFloat(document.getElementById('rkL').value) || 0;
+        const rkW = parseFloat(document.getElementById('rkW').value) || 0;
+        const rkD = parseFloat(document.getElementById('rkD').value) || 0;
+
+        const lkL = parseFloat(document.getElementById('lkL').value) || 0;
+        const lkW = parseFloat(document.getElementById('lkW').value) || 0;
+        const lkD = parseFloat(document.getElementById('lkD').value) || 0;
+
+        const directMayo = document.getElementById('directMayo').value;
+        const genetics = document.getElementById('genetics').value;
+
+        const upRatio = uUr / uPl;
+        document.getElementById('resUp').innerText = upRatio.toFixed(1);
+
+        let scoreUreia = 0;
+        let statusMedula = "";
+        if (upRatio >= 80) { scoreUreia = 0; statusMedula = "Preservada (≥ 80)"; }
+        else if (upRatio >= 40) { scoreUreia = 2; statusMedula = "Dano Moderado (40-79)"; }
+        else { scoreUreia = 4; statusMedula = "Defeito Severo (< 40)"; }
+        document.getElementById('resStatusUreia').innerText = statusMedula;
+
+        const volRK = 0.5236 * rkL * rkW * rkD;
+        const volLK = 0.5236 * lkL * lkW * lkD;
+        const totalTKV = volRK + volLK;
+        const htTKV = totalTKV / (height / 100);
+
+        document.getElementById('resTKV').innerText = totalTKV > 0 ? Math.round(totalTKV) + " mL" : "--";
+        document.getElementById('resHtTKV').innerText = htTKV > 0 ? Math.round(htTKV) + " mL/m" : "--";
+
+        let mayoClass = "1C";
+        let scoreMayo = 2;
+
+        if (directMayo !== "calc") {
+            mayoClass = directMayo;
+        } else if (htTKV > 0) {
+            if (htTKV < 250) mayoClass = "1A";
+            else if (htTKV < 450) mayoClass = "1B";
+            else if (htTKV < 750) mayoClass = "1C";
+            else if (htTKV < 1100) mayoClass = "1D";
+            else mayoClass = "1E";
+        }
+
+        if (mayoClass === "1A") scoreMayo = 0;
+        if (mayoClass === "1B") scoreMayo = 1;
+        if (mayoClass === "1C") scoreMayo = 2;
+        if (mayoClass === "1D") scoreMayo = 3;
+        if (mayoClass === "1E") scoreMayo = 4;
+
+        document.getElementById('resMayo').innerText = "Classe " + mayoClass;
+
+        let scoreGen = 0;
+        if (genetics === 'PKD1_nontrunc') scoreGen = 1;
+        if (genetics === 'PKD1_trunc') scoreGen = 2;
+
+        const totalScore = scoreUreia + scoreMayo + scoreGen;
+        document.getElementById('resScore').innerText = totalScore + " / 10";
+
+        const badge = document.getElementById('riskBadge');
+        const title = document.getElementById('riskTitle');
+        const sub = document.getElementById('riskSub');
+        const rec = document.getElementById('recText');
+        const tolvPanel = document.getElementById('tolvaptanPanel');
+        const tolvText = document.getElementById('tolvaptanText');
+
+        badge.className = 'risk-badge-box ';
+        let isHighRisk = totalScore >= 6 || mayoClass === "1D" || mayoClass === "1E";
+
+        if (totalScore <= 2) {
+            badge.classList.add('low');
+            title.innerText = 'BAIXO RISCO DE PROGRESSÃO';
+            sub.innerText = 'Declínio eGFR estimado: < 1.5 mL/min/ano';
+            rec.innerHTML = 'Acompanhamento habitual. Ingestão hídrica para normootemia (2.0-2.5 L/dia). Monitoramento anual.';
+        } else if (totalScore <= 5) {
+            badge.classList.add('mod');
+            title.innerText = 'RISCO INTERMEDIÁRIO';
+            sub.innerText = 'Declínio eGFR estimado: 1.5 a 3.0 mL/min/ano';
+            rec.innerHTML = 'Hidratação guiada para suprimir AVP (Densidade Urinária &le; 1.010). Meta PA &lt; 120/80 mmHg.';
+        } else {
+            badge.classList.add('high');
+            title.innerText = 'ALTO RISCO DE PROGRESSÃO RÁPIDA';
+            sub.innerText = 'Declínio eGFR estimado: > 3.0 mL/min/ano';
+            rec.innerHTML = 'Hiperhidratação terapêutica (> 3 L/dia) e dieta hipossódica (< 2g/dia). Considerar Tolvaptana.';
+        }
+
+        let tolvEligible = true;
+        let reasons = [];
+
+        if (!isHighRisk) { tolvEligible = false; reasons.push("Sem critérios de alta progressão (Score < 6 e Mayo 1A-1C)"); }
+        if (age < 18 || age > 55) {
+            if (!(age > 55 && age <= 65 && isHighRisk && egfr >= 25)) {
+                tolvEligible = false; reasons.push("Idade fora da faixa de maior benefício (18-55 anos)");
+            }
+        }
+        if (egfr < 25) { tolvEligible = false; reasons.push("eGFR < 25 mL/min/1.73m²"); }
+        if (altAst === "elevated") { tolvEligible = false; reasons.push("Transaminases elevadas (Risco de Hepatotoxicidade)"); }
+
+        if (tolvEligible) {
+            tolvPanel.className = "tolvaptan-box eligible";
+            tolvText.innerHTML = "<strong>PACIENTE ELEGÍVEL PARA TOLVAPTANA:</strong> Critérios de rápida progressão preenchidos, função renal e segurança hepática adequadas. Monitorar TGO/TGP mensalmente nos primeiros 18 meses.";
+        } else {
+            tolvPanel.className = "tolvaptan-box not-eligible";
+            tolvText.innerHTML = "<strong>NÃO ELEGÍVEL NO MOMENTO:</strong><br>&bull; " + reasons.join("<br>&bull; ");
+        }
+    }
+    calculateAll();
+</script>
+    <script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("Service Worker registrado"))
+        .catch(err => console.log(err));
+}
+</script>
+</body>
+</html>
